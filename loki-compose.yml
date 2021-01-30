@@ -1,0 +1,37 @@
+version: "3"
+
+networks:
+  loki:
+
+services:
+  influxdb:
+    image: influxdb:latest
+    ports:
+      - "8083:8083"
+      - "8086:8086"
+      - "8090:8090"
+    networks:
+      - loki
+  loki:
+    image: grafana/loki:2.0.0
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - loki
+  #  promtail:
+  #    image: grafana/promtail:master
+  #    volumes:
+  #      - ./config/docker-config.yaml:/etc/promtail/docker-config.yaml
+  #      - /var/log/syslog-server:/var/log
+  #    command: -config.file=/etc/promtail/docker-config.yaml
+  #    networks:
+  #      - loki
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    networks:
+      - loki
+    command: sh -c "grafana-cli plugins install michaeldmoore-multistat-panel"
